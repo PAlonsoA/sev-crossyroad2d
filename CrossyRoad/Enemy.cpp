@@ -1,18 +1,26 @@
 #include "Enemy.h"
 
 Enemy::Enemy(float x, float y, Game* game)
-	: Actor("res/enemigo.png", x, y, 36, 40, game) {
+	: Actor("res/coches/coche_rojo_1.png", x, y, 40, 60, game) {
+
+	vy = speed[rand() % 4];
 
 	state = game->stateMoving;
 
-	aDying = new Animation("res/enemigo_morir.png", width, height,
-		280, 40, 6, 8, false, game);
-	aMoving = new Animation("res/enemigo_movimiento.png", width, height,
-		108, 40, 6, 3, true, game);
-	animation = aMoving;
+	if (vy < 0) {
+		aDying = new Animation("res/coches/coche_rojo_1_impacto.png", width, height,
+			160, 60, 1, 4, false, game);
+		aMoving = new Animation("res/coches/coche_rojo_1_movimiento.png", width, height,
+			160, 60, 1, 4, true, game);
+	}
+	else if (vy > 0) {
+		aDying = new Animation("res/coches/coche_rojo_2_impacto.png", width, height,
+			160, 60, 1, 4, false, game);
+		aMoving = new Animation("res/coches/coche_rojo_2_movimiento.png", width, height,
+			160, 60, 1, 4, true, game);
+	}
 
-	vxIntelligence = -1;
-	vx = vxIntelligence;
+	animation = aMoving;
 }
 
 void Enemy::update() {
@@ -35,29 +43,15 @@ void Enemy::update() {
 	}
 
 	// Establecer velocidad
-	if (state != game->stateDying) {
-		// no está muerto y se ha quedado parado
-		if (vx == 0) {
-			vxIntelligence = vxIntelligence * -1;
-			vx = vxIntelligence;
-		}
-		if (outRight) {
-			// mover hacia la izquierda vx tiene que ser negativa
-			if (vxIntelligence > 0) {
-				vxIntelligence = vxIntelligence * -1;
-			}
-			vx = vxIntelligence;
-		}
-		if (outLeft) {
-			// mover hacia la derecha vx tiene que ser positiva
-			if (vxIntelligence < 0) {
-				vxIntelligence = vxIntelligence * -1;
-			}
-			vx = vxIntelligence;
-		}
+	if (state == game->stateDying) {
+		vy = 0;
 	}
-	else {
-		vx = 0;
+
+	if (y > HEIGHT + 50 && vy > 0) {
+		y = -50;
+	}
+	else if (y < -50 && vy < 0) {
+		y = HEIGHT + 50;
 	}
 }
 

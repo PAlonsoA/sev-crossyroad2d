@@ -14,7 +14,7 @@ void GameLayer::init() {
 	buttonJump = new Actor("res/boton_salto.png", WIDTH * 0.9, HEIGHT * 0.55, 100, 100, game);
 	buttonShoot = new Actor("res/boton_disparo.png", WIDTH * 0.75, HEIGHT * 0.83, 100, 100, game);
 
-	space = new Space(1);
+	space = new Space(0);
 	scrollX = 0;
 	tiles.clear();
 
@@ -25,12 +25,13 @@ void GameLayer::init() {
 	textPoints = new Text("hola", WIDTH * 0.92, HEIGHT * 0.04, game);
 	textPoints->content = to_string(points);
 
-	background = new Background("res/fondo_2.png", WIDTH * 0.5, HEIGHT * 0.5, -1, game);
+	background = new Background("res/fondo_carretera.png", WIDTH * 0.5, HEIGHT * 0.5, -1, game);
 	backgroundPoints = new Actor("res/icono_puntos.png",
 		WIDTH * 0.85, HEIGHT * 0.05, 24, 24, game);
 
 	enemies.clear(); // Vaciar por si reiniciamos el juego
 	projectiles.clear(); // Vaciar por si reiniciamos el juego
+	river.clear();
 
 	loadMap("res/" + to_string(game->currentLevel) + ".txt");
 }
@@ -81,15 +82,14 @@ void GameLayer::processControls() {
 
 	// Eje Y
 	if (controlMoveY > 0) {
+		player->moveY(1);
 	}
 	else if (controlMoveY < 0) {
-		player->jump();
+		player->moveY(-1);
 	}
 	else {
+		player->moveY(0);
 	}
-
-
-
 }
 
 void GameLayer::update() {
@@ -180,6 +180,16 @@ void GameLayer::update() {
 		}
 	}
 
+	for (auto const& riverTile : river) {
+		if (riverTile->isOverlap(player)) {
+			cout << "Jugador en rio" << endl;
+			player->loseLife(player->lifes);
+			init();
+			return;
+
+		}
+	}
+
 	for (auto const& delEnemy : deleteEnemies) {
 		enemies.remove(delEnemy);
 		space->removeDynamicActor(delEnemy);
@@ -194,7 +204,7 @@ void GameLayer::update() {
 	deleteProjectiles.clear();
 
 
-	cout << "update GameLayer" << endl;
+	// cout << "update GameLayer" << endl;
 }
 
 void GameLayer::draw() {
@@ -356,13 +366,13 @@ void GameLayer::loadMap(string name) {
 		// Por línea
 		for (int i = 0; getline(streamFile, line); i++) {
 			istringstream streamLine(line);
-			mapWidth = line.length() * 40; // Ancho del mapa en pixels
+			mapWidth = line.length() * 30; // Ancho del mapa en pixels
 			// Por carácter (en cada línea)
 			for (int j = 0; !streamLine.eof(); j++) {
 				streamLine >> character; // Leer character 
 				cout << character;
 				float x = 40 / 2 + j * 40; // x central
-				float y = 32 + i * 32; // y suelo
+				float y = 40 + i * 40; // y suelo
 				loadMapObject(character, x, y);
 			}
 
@@ -390,20 +400,45 @@ void GameLayer::loadMapObject(char character, float x, float y) {
 			break;
 		}
 		case '1': {
+			loadMapObject('X', x, y);
 			player = new Player(x, y, game);
 			// modificación para empezar a contar desde el suelo.
 			player->y = player->y - player->height / 2;
 			space->addDynamicActor(player);
 			break;
 		}
-		case '#': {
-			Tile* tile = new Tile("res/bloque_tierra.png", x, y, game);
+		case 'X': {
+			Tile* tile = new Tile("res/tile_hierba.png", x, y, game);
+			// modificación para empezar a contar desde el suelo.
+			tile->y = tile->y - tile->height / 2;
+			tiles.push_back(tile);
+			break;
+		}
+		case 'P': {
+			loadMapObject('X', x, y);
+			Tile* tile = new Tile("res/tile_piedra.png", x, y, game);
 			// modificación para empezar a contar desde el suelo.
 			tile->y = tile->y - tile->height / 2;
 			tiles.push_back(tile);
 			space->addStaticActor(tile);
 			break;
 		}
+		case 'R': {
+			River* riverTile = new River("res/tile_rio.png", x, y, game);
+			// modificación para empezar a contar desde el suelo.
+			riverTile->y = riverTile->y - riverTile->height / 2;
+			tiles.push_back(riverTile);
+			river.push_back(riverTile);
+			break;
+		}
+		case 'L': {
+			Tile* tile = new Tile("res/tile_tronco.png", x, y, game);
+			tile->y = tile->y - tile->height / 2;
+			tiles.push_back(tile);
+			space->addDynamicActor(tile);
+			break;
+		}
+
 	}
 }
 

@@ -17,6 +17,8 @@
 #include <sstream> // Leer líneas / String
 #include <list>
 
+#include "River.h"
+
 class GameLayer : public Layer
 {
 public:
@@ -57,6 +59,6 @@ public:
 	int controlMoveY = 0;
 	int controlMoveX = 0;
 
-
+	list<River*> river;
 };
 

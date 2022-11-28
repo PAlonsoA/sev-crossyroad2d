@@ -1,7 +1,7 @@
 #include "Player.h"
 
 Player::Player(float x, float y, Game* game)
-	: Actor("res/jugador.png", x, y, 35, 35, game) {
+	: Actor("res/jugador.png", x, y, 40, 40, game) {
 	onAir = false;
 	orientation = game->orientationRight;
 	state = game->stateMoving;
@@ -27,27 +27,11 @@ Player::Player(float x, float y, Game* game)
 }
 
 void Player::update() {
-	// En el aire y moviéndose, PASA a estar saltando
-	if (onAir && state == game->stateMoving) {
-		state = game->stateJumping;
-	}
-	// No está en el aire y estaba saltando, PASA a moverse
-	if (!onAir && state == game->stateJumping) {
-		state = game->stateMoving;
-	}
-
 	if (invulnerableTime > 0) {
 		invulnerableTime--;
 	}
 
 	bool endAnimation = animation->update();
-
-	if (collisionDown == true) {
-		onAir = false;
-	}
-	else {
-		onAir = true;
-	}
 
 	// Acabo la animación, no sabemos cual
 	if (endAnimation) {
@@ -63,16 +47,6 @@ void Player::update() {
 	}
 	if (vx < 0) {
 		orientation = game->orientationLeft;
-	}
-
-	// Selección de animación basada en estados
-	if (state == game->stateJumping) {
-		if (orientation == game->orientationRight) {
-			animation = aJumpingRight;
-		}
-		if (orientation == game->orientationLeft) {
-			animation = aJumpingLeft;
-		}
 	}
 
 	// Selección de animación basada en estados
@@ -107,21 +81,30 @@ void Player::update() {
 	if (shootTime > 0) {
 		shootTime--;
 	}
-}
-
-void Player::jump() {
-	if (!onAir) {
-		vy = -16;
-		onAir = true;
+	if (moveTimeX > 0) {
+		moveTimeX--;
+	}
+	if (moveTimeY > 0) {
+		moveTimeY--;
 	}
 }
 
 void Player::moveX(float axis) {
-	vx = axis * 3;
+	if (moveTimeX == 0 && axis != 0) {
+		vx = axis * 40;
+		moveTimeX = 5;
+	}
+	else
+		vx = 0;
 }
 
 void Player::moveY(float axis) {
-	vy = axis * 3;
+	if (moveTimeY == 0 && axis != 0) {
+		vy = axis * 40;
+		moveTimeY = 5;
+	}
+	else
+		vy = 0;
 }
 
 void Player::draw(float scrollX) {
@@ -135,10 +118,10 @@ void Player::draw(float scrollX) {
 	}
 }
 
-void Player::loseLife() {
+void Player::loseLife(int lifes) {
 	if (invulnerableTime <= 0) {
-		if (lifes > 0) {
-			lifes--;
+		if (this->lifes > 0) {
+			this->lifes -= lifes;
 			invulnerableTime = 100;
 			// 100 actualizaciones 
 		}

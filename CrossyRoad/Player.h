@@ -15,7 +15,7 @@ public:
 	void moveX(float axis);
 	void moveY(float axis);
 	void draw(float scrollX = 0) override; // Va a sobrescribir
-	void loseLife();
+	void loseLife(int lifes = 1);
 	int lifes = 3;
 	int invulnerableTime = 0;
 	bool onAir;
@@ -33,5 +33,7 @@ public:
 	Audio* audioShoot;
 	int shootCadence = 30;
 	int shootTime = 0;
+	int moveTimeX = 0;
+	int moveTimeY = 0;
 };
 
