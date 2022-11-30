@@ -75,8 +75,11 @@
     <ClCompile Include="MenuLayer.cpp">
       <Filter>Archivos de origen\layers</Filter>
     </ClCompile>
+    <ClCompile Include="Log.cpp">
+      <Filter>Archivos de origen\actores</Filter>
+    </ClCompile>
     <ClCompile Include="River.cpp">
-      <Filter>Archivos de origen</Filter>
+      <Filter>Archivos de origen\actores</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -125,8 +128,11 @@
     <ClInclude Include="MenuLayer.h">
       <Filter>Archivos de encabezado\layers</Filter>
     </ClInclude>
+    <ClInclude Include="Log.h">
+      <Filter>Archivos de encabezado\actores</Filter>
+    </ClInclude>
     <ClInclude Include="River.h">
-      <Filter>Archivos de encabezado</Filter>
+      <Filter>Archivos de encabezado\actores</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

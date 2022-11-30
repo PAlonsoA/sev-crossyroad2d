@@ -31,7 +31,9 @@ void GameLayer::init() {
 
 	enemies.clear(); // Vaciar por si reiniciamos el juego
 	projectiles.clear(); // Vaciar por si reiniciamos el juego
+
 	river.clear();
+	logs.clear();
 
 	loadMap("res/" + to_string(game->currentLevel) + ".txt");
 }
@@ -106,8 +108,8 @@ void GameLayer::update() {
 		pause = true;
 		init();
 	}
-	// Jugador se cae
-	if (player->y > HEIGHT + 80) {
+	// Jugador se sale del mapa
+	if (player->y >= HEIGHT + 40 || player->y <= -40) {
 		init();
 	}
 	space->update();
@@ -118,6 +120,19 @@ void GameLayer::update() {
 	}
 	for (auto const& projectile : projectiles) {
 		projectile->update();
+	}
+
+	for (auto const& log : logs) {
+		log->update();
+		for (auto const& riverTile : river) {
+			if (log->isOverlap(riverTile)) {
+				riverTile->hasLog = true;
+			}
+		}
+		if (log->isOverlap(player) && player->vy == 0) {
+			player->y = log->y;
+		}
+
 	}
 
 	// Colisiones
@@ -180,14 +195,15 @@ void GameLayer::update() {
 		}
 	}
 
+	// Restart when player falls into the river
 	for (auto const& riverTile : river) {
-		if (riverTile->isOverlap(player)) {
+		if (!riverTile->hasLog && riverTile->isOverlap(player)) {
 			cout << "Jugador en rio" << endl;
 			player->loseLife(player->lifes);
 			init();
 			return;
-
 		}
+		riverTile->hasLog = false;
 	}
 
 	for (auto const& delEnemy : deleteEnemies) {
@@ -213,6 +229,10 @@ void GameLayer::draw() {
 	
 	for (auto const& tile : tiles) {
 		tile->draw(scrollX);
+	}
+
+	for (auto const& log : logs) {
+		log->draw(scrollX);
 	}
 
 	for (auto const& projectile : projectiles) {
@@ -432,10 +452,12 @@ void GameLayer::loadMapObject(char character, float x, float y) {
 			break;
 		}
 		case 'L': {
-			Tile* tile = new Tile("res/tile_tronco.png", x, y, game);
-			tile->y = tile->y - tile->height / 2;
-			tiles.push_back(tile);
-			space->addDynamicActor(tile);
+			loadMapObject('R', x, y);
+			Log* log = new Log("res/tile_tronco.png", x, y, game);
+			log->y = log->y - log->height / 2;
+//			tiles.push_back(log);
+			logs.push_back(log);
+			space->addDynamicActor(log);
 			break;
 		}
 

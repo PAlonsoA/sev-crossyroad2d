@@ -18,6 +18,7 @@
 #include <list>
 
 #include "River.h"
+#include "Log.h"
 
 class GameLayer : public Layer
 {
@@ -60,5 +61,6 @@ public:
 	int controlMoveX = 0;
 
 	list<River*> river;
+	list<Log*> logs;
 };
 
