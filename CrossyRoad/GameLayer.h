@@ -23,6 +23,8 @@
 #include "CoinPowerUp.h"
 #include "LifePowerUp.h"
 #include "SpeedPowerUp.h"
+#include "PicoPowerUp.h"
+#include "Obstacle.h"
 
 class GameLayer : public Layer
 {
@@ -67,8 +69,11 @@ public:
 	list<River*> river;
 	list<Log*> logs;
 	list<PowerUp*> powerUps;
+	list<Obstacle*> obstacles;
 
 	Text* textLifes;
 	Actor* backgroundLifes;
+	Text* textShots;
+	Actor* backgroundShots;
 };
 

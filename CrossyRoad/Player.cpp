@@ -129,7 +129,7 @@ void Player::loseLife(int lifes) {
 }
 
 Projectile* Player::shoot() {
-	if (shootTime == 0) {
+	if (shootTime == 0 && shots > 0) {
 		state = game->stateShooting;
 		audioShoot->play();
 		shootTime = shootCadence;
@@ -139,6 +139,7 @@ Projectile* Player::shoot() {
 		if (orientation == game->orientationLeft) {
 			projectile->vx = projectile->vx * -1; // Invertir
 		}
+		shots--;
 		return projectile;
 	}
 	else {
