@@ -21,6 +21,7 @@
 #include "Log.h"
 #include "PowerUp.h"
 #include "CoinPowerUp.h"
+#include "LifePowerUp.h"
 
 class GameLayer : public Layer
 {
@@ -65,5 +66,8 @@ public:
 	list<River*> river;
 	list<Log*> logs;
 	list<PowerUp*> powerUps;
+
+	Text* textLifes;
+	Actor* backgroundLifes;
 };
 

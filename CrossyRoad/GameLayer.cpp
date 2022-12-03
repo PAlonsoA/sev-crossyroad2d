@@ -38,8 +38,10 @@ void GameLayer::init() {
 	powerUps.clear();
 
 	loadMap("res/" + to_string(game->currentLevel) + ".txt");
+	textLifes = new Text("O", WIDTH * 0.15, HEIGHT * 0.05, game);
+	textLifes->content = to_string(player->lifes);
+	backgroundLifes = new Actor("res/corazon.png", WIDTH * 0.06, HEIGHT * 0.06, 44, 36, game);
 }
-
 void GameLayer::processControls() {
 	// obtener controles
 	SDL_Event event;
@@ -145,6 +147,7 @@ void GameLayer::update() {
 				init();
 				return;
 			}
+			textLifes->content = to_string(player->lifes);
 		}
 	}
 
@@ -260,6 +263,8 @@ void GameLayer::draw() {
 
 	backgroundPoints->draw();
 	textCoins->draw();
+	backgroundLifes->draw();
+	textLifes->draw();
 
 	// HUD
 	if (game->input == game->inputMouse) {
@@ -427,6 +432,15 @@ void GameLayer::loadMapObject(char character, float x, float y) {
 			powerUps.push_back(coin);
 			maxCoins++;
 			textCoins->content = "O I " + to_string(maxCoins);
+			break;
+		}
+		case 'H': {
+			loadMapObject('X', x, y);
+			PowerUp* life = new LifePowerUp("res/corazon.png", x, y, game);
+			// modificación para empezar a contar desde el suelo.
+			life->y = life->y - life->height / 2;
+			space->addDynamicActor(life); // Realmente no hace falta
+			powerUps.push_back(life);
 			break;
 		}
 		case 'E': {

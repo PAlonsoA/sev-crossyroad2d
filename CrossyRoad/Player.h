@@ -16,7 +16,7 @@ public:
 	void moveY(float axis);
 	void draw(float scrollX = 0) override; // Va a sobrescribir
 	void loseLife(int lifes = 1);
-	int lifes = 3;
+	int lifes = 1;
 	int invulnerableTime = 0;
 	bool onAir;
 	int orientation;
