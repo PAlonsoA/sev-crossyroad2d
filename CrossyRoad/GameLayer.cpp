@@ -18,22 +18,24 @@ void GameLayer::init() {
 	scrollX = 0;
 	tiles.clear();
 
-	audioBackground = new Audio("res/musica_ambiente.mp3", true);
+	audioBackground = Audio::createAudio("res/musica_ambiente.mp3", true);
 	audioBackground->play();
 
-	points = 0;
-	textPoints = new Text("hola", WIDTH * 0.92, HEIGHT * 0.04, game);
-	textPoints->content = to_string(points);
+	coins = 0;
+	maxCoins = 0;
+	textCoins = new Text("hola", WIDTH * 0.92, HEIGHT * 0.045, game);
+	textCoins->content = "OI" + to_string(maxCoins);
 
 	background = new Background("res/fondo_carretera.png", WIDTH * 0.5, HEIGHT * 0.5, -1, game);
-	backgroundPoints = new Actor("res/icono_puntos.png",
-		WIDTH * 0.85, HEIGHT * 0.05, 24, 24, game);
+	backgroundPoints = new Actor("res/tile_coin.png",
+		WIDTH * 0.82, HEIGHT * 0.05, 40, 40, game);
 
 	enemies.clear(); // Vaciar por si reiniciamos el juego
 	projectiles.clear(); // Vaciar por si reiniciamos el juego
 
 	river.clear();
 	logs.clear();
+	powerUps.clear();
 
 	loadMap("res/" + to_string(game->currentLevel) + ".txt");
 }
@@ -98,7 +100,7 @@ void GameLayer::update() {
 	if (pause)
 		return;
 	// Nivel superado
-	if (cup->isOverlap(player)) {
+	if (coins == maxCoins) {
 		game->currentLevel++;
 		if (game->currentLevel > game->finalLevel) {
 			game->currentLevel = 0;
@@ -150,6 +152,7 @@ void GameLayer::update() {
 
 	list<Enemy*> deleteEnemies;
 	list<Projectile*> deleteProjectiles;
+	list<PowerUp*> deletePowerUps;
 	for (auto const& projectile : projectiles) {
 		if (projectile->isInRender(scrollX) == false || projectile->vx == 0) {
 
@@ -175,10 +178,8 @@ void GameLayer::update() {
 				}
 
 				enemy->impacted();
-				points++;
-				textPoints->content = to_string(points);
-
-
+				coins++;
+				textCoins->content = to_string(coins);
 			}
 		}
 	}
@@ -195,10 +196,16 @@ void GameLayer::update() {
 		}
 	}
 
+	for (auto const& powerUp : powerUps) {
+		if (powerUp->isOverlap(player)) {
+			powerUp->collision();
+			deletePowerUps.push_back(powerUp);
+		}
+	}
+
 	// Restart when player falls into the river
 	for (auto const& riverTile : river) {
 		if (!riverTile->hasLog && riverTile->isOverlap(player)) {
-			cout << "Jugador en rio" << endl;
 			player->loseLife(player->lifes);
 			init();
 			return;
@@ -219,8 +226,12 @@ void GameLayer::update() {
 	}
 	deleteProjectiles.clear();
 
-
-	// cout << "update GameLayer" << endl;
+	for (auto const& delPowerUp : deletePowerUps) {
+		powerUps.remove(delPowerUp);
+		space->removeDynamicActor(delPowerUp);
+		delete delPowerUp;
+	}
+	deletePowerUps.clear();
 }
 
 void GameLayer::draw() {
@@ -235,17 +246,20 @@ void GameLayer::draw() {
 		log->draw(scrollX);
 	}
 
+	for (auto const& powerUp : powerUps) {
+		powerUp->draw(scrollX);
+	}
+
 	for (auto const& projectile : projectiles) {
 		projectile->draw(scrollX);
 	}
-	cup->draw(scrollX);
 	player->draw(scrollX);
 	for (auto const& enemy : enemies) {
 		enemy->draw(scrollX);
 	}
 
 	backgroundPoints->draw();
-	textPoints->draw();
+	textCoins->draw();
 
 	// HUD
 	if (game->input == game->inputMouse) {
@@ -405,10 +419,14 @@ void GameLayer::loadMap(string name) {
 void GameLayer::loadMapObject(char character, float x, float y) {
 	switch (character) {
 		case 'C': {
-			cup = new Tile("res/copa.png", x, y, game);
+			loadMapObject('X', x, y);
+			PowerUp* coin = new CoinPowerUp("res/tile_coin.png", x, y, game);
 			// modificación para empezar a contar desde el suelo.
-			cup->y = cup->y - cup->height / 2;
-			space->addDynamicActor(cup); // Realmente no hace falta
+			coin->y = coin->y - coin->height / 2;
+			space->addDynamicActor(coin); // Realmente no hace falta
+			powerUps.push_back(coin);
+			maxCoins++;
+			textCoins->content = "O I " + to_string(maxCoins);
 			break;
 		}
 		case 'E': {
@@ -433,7 +451,7 @@ void GameLayer::loadMapObject(char character, float x, float y) {
 			tile->y = tile->y - tile->height / 2;
 			tiles.push_back(tile);
 			break;
-		}
+		};
 		case 'P': {
 			loadMapObject('X', x, y);
 			Tile* tile = new Tile("res/tile_piedra.png", x, y, game);

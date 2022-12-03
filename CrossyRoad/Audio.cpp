@@ -31,7 +31,7 @@ void Audio::play() {
 		Mix_PlayMusic(mix, -1);
 		// -1 se repite sin parar
 	}
-	else {
+	else {	
 		// hay más de 4 en cola
 		if (SDL_GetQueuedAudioSize(deviceId) > wavLength * 4) {
 			SDL_ClearQueuedAudio(deviceId); // limpiar

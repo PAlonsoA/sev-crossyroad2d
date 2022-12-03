@@ -5,7 +5,7 @@ Player::Player(float x, float y, Game* game)
 	onAir = false;
 	orientation = game->orientationRight;
 	state = game->stateMoving;
-	audioShoot = new Audio("res/efecto_disparo.wav", false);
+	audioShoot = Audio::createAudio("res/efecto_disparo.wav", false);
 
 	aJumpingRight = new Animation("res/jugador_saltando_derecha.png",
 		width, height, 160, 40, 6, 4, true, game);

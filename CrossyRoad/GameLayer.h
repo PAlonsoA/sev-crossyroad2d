@@ -19,6 +19,8 @@
 
 #include "River.h"
 #include "Log.h"
+#include "PowerUp.h"
+#include "CoinPowerUp.h"
 
 class GameLayer : public Layer
 {
@@ -40,14 +42,14 @@ public:
 	Pad* pad;
 	Actor* buttonJump;
 	Actor* buttonShoot;
-	Tile* cup;
 	Space* space;
 	float scrollX;
 	list<Tile*> tiles;
 
 	Audio* audioBackground;
-	Text* textPoints;
-	int points;
+	Text* textCoins;
+	int coins;
+	int maxCoins;
 	int newEnemyTime = 0;
 	Player* player;
 	Background* background;
@@ -62,5 +64,6 @@ public:
 
 	list<River*> river;
 	list<Log*> logs;
+	list<PowerUp*> powerUps;
 };
 

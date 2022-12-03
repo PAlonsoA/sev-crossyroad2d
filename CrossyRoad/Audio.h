@@ -1,6 +1,8 @@
 #pragma once
+
 #include <iostream>
-#include <string> 
+#include <string>
+#include <map> 
 using namespace std;
 
 #include <SDL.h>;
@@ -8,8 +10,19 @@ using namespace std;
 
 class Audio
 {
-public:
 	Audio(string filename, bool loop);
+public:
+	static Audio* createAudio(string filename, bool loop) {
+		// Mapa estático
+		static map<string, Audio*> instancedAudios;
+
+		if (instancedAudios.find(filename) == instancedAudios.end()) {
+			cout << "Audio no cacheado lo creo " + filename  << endl;;
+			instancedAudios[filename] = new Audio(filename, loop);
+		}
+
+		return instancedAudios[filename];
+	}
 	~Audio(); //destructor
 	void play();
 	bool loop;
@@ -19,5 +32,3 @@ public:
 	Uint8* wavBuffer;
 	SDL_AudioDeviceID deviceId;
 };
-
-
