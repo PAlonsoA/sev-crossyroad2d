@@ -443,6 +443,15 @@ void GameLayer::loadMapObject(char character, float x, float y) {
 			powerUps.push_back(life);
 			break;
 		}
+		case 'S': {
+			loadMapObject('X', x, y);
+			PowerUp* speed = new SpeedPowerUp("res/speed_powerup.png", x, y, game);
+			// modificación para empezar a contar desde el suelo.
+			speed->y = speed->y - speed->height / 2;
+			space->addDynamicActor(speed); // Realmente no hace falta
+			powerUps.push_back(speed);
+			break;
+		}
 		case 'E': {
 			Enemy* enemy = new Enemy(x, y, game);
 			// modificación para empezar a contar desde el suelo.

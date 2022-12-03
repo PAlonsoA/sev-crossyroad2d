@@ -179,6 +179,7 @@
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="River.cpp" />
     <ClCompile Include="Space.cpp" />
+    <ClCompile Include="SpeedPowerUp.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="Tile.cpp" />
   </ItemGroup>
@@ -201,6 +202,7 @@
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="River.h" />
     <ClInclude Include="Space.h" />
+    <ClInclude Include="SpeedPowerUp.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="Tile.h" />
   </ItemGroup>

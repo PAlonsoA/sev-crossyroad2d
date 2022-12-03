@@ -22,6 +22,7 @@
 #include "PowerUp.h"
 #include "CoinPowerUp.h"
 #include "LifePowerUp.h"
+#include "SpeedPowerUp.h"
 
 class GameLayer : public Layer
 {

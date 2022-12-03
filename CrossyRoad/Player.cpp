@@ -92,7 +92,7 @@ void Player::update() {
 void Player::moveX(float axis) {
 	if (moveTimeX == 0 && axis != 0) {
 		vx = axis * 40;
-		moveTimeX = 5;
+		moveTimeX = moveTime;
 	}
 	else
 		vx = 0;
@@ -101,7 +101,7 @@ void Player::moveX(float axis) {
 void Player::moveY(float axis) {
 	if (moveTimeY == 0 && axis != 0) {
 		vy = axis * 40;
-		moveTimeY = 5;
+		moveTimeY = moveTime;
 	}
 	else
 		vy = 0;

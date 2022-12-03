@@ -35,5 +35,6 @@ public:
 	int shootTime = 0;
 	int moveTimeX = 0;
 	int moveTimeY = 0;
+	int moveTime = 5;
 };
 
