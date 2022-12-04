@@ -8,7 +8,6 @@
 #include "Projectile.h"
 #include "Text.h"
 #include "Tile.h"
-#include "Pad.h"
 
 #include "Audio.h" 
 #include "Space.h"
@@ -42,10 +41,6 @@ public:
 	void calculateScroll();
 	Actor* message;
 	bool pause;
-	// Elementos de interfaz
-	Pad* pad;
-	Actor* buttonJump;
-	Actor* buttonShoot;
 	Space* space;
 	float scrollX;
 	list<Tile*> tiles;
@@ -53,7 +48,7 @@ public:
 	Audio* audioBackground;
 	Text* textCoins;
 	int coins;
-	int maxCoins;
+	int maxCoins = 0;
 	int newEnemyTime = 0;
 	Player* player;
 	Background* background;
@@ -65,6 +60,8 @@ public:
 	bool controlShoot = false;
 	int controlMoveY = 0;
 	int controlMoveX = 0;
+	bool moving = false;
+	int timeNotMoving = 60;
 
 	list<River*> river;
 	list<Log*> logs;

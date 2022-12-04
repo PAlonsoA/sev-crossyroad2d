@@ -69,9 +69,6 @@
     <ClCompile Include="Space.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="Pad.cpp">
-      <Filter>Archivos de origen\actores</Filter>
-    </ClCompile>
     <ClCompile Include="MenuLayer.cpp">
       <Filter>Archivos de origen\layers</Filter>
     </ClCompile>
@@ -139,9 +136,6 @@
     </ClInclude>
     <ClInclude Include="Space.h">
       <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Pad.h">
-      <Filter>Archivos de encabezado\actores</Filter>
     </ClInclude>
     <ClInclude Include="MenuLayer.h">
       <Filter>Archivos de encabezado\layers</Filter>

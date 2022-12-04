@@ -174,7 +174,6 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MenuLayer.cpp" />
     <ClCompile Include="Obstacle.cpp" />
-    <ClCompile Include="Pad.cpp" />
     <ClCompile Include="PicoPowerUp.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PowerUp.cpp" />
@@ -199,7 +198,6 @@
     <ClInclude Include="Log.h" />
     <ClInclude Include="MenuLayer.h" />
     <ClInclude Include="Obstacle.h" />
-    <ClInclude Include="Pad.h" />
     <ClInclude Include="PicoPowerUp.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PowerUp.h" />

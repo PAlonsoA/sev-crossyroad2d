@@ -1,22 +1,22 @@
 #include "Enemy.h"
 
 Enemy::Enemy(float x, float y, Game* game)
-	: Actor("res/coches/coche_rojo_1.png", x, y, 40, 60, game) {
+	: Actor("res/cars/coche_rojo_1.png", x, y, 40, 60, game) {
 
 	vy = speed[rand() % 4];
 
 	state = game->stateMoving;
 
 	if (vy < 0) {
-		aDying = new Animation("res/coches/coche_rojo_1_impacto.png", width, height,
+		aDying = new Animation("res/cars/coche_rojo_1_impacto.png", width, height,
 			160, 60, 1, 4, false, game);
-		aMoving = new Animation("res/coches/coche_rojo_1_movimiento.png", width, height,
+		aMoving = new Animation("res/cars/coche_rojo_1_movimiento.png", width, height,
 			160, 60, 1, 4, true, game);
 	}
 	else if (vy > 0) {
-		aDying = new Animation("res/coches/coche_rojo_2_impacto.png", width, height,
+		aDying = new Animation("res/cars/coche_rojo_2_impacto.png", width, height,
 			160, 60, 1, 4, false, game);
-		aMoving = new Animation("res/coches/coche_rojo_2_movimiento.png", width, height,
+		aMoving = new Animation("res/cars/coche_rojo_2_movimiento.png", width, height,
 			160, 60, 1, 4, true, game);
 	}
 

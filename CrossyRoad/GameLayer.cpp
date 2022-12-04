@@ -4,21 +4,17 @@ GameLayer::GameLayer(Game* game)
 	: Layer(game) {
 	//llama al constructor del padre : Layer(renderer)
 	pause = true;
-	message = new Actor("res/mensaje_como_jugar.png", WIDTH * 0.5, HEIGHT * 0.5,
-		WIDTH, HEIGHT, game);
+	message = new Actor("res/boton_pausa.png", WIDTH * 0.5, HEIGHT * 0.5,
+		40, 40, game);
 	init();
 }
 
 void GameLayer::init() {
-	pad = new Pad(WIDTH * 0.15, HEIGHT * 0.80, game);
-	buttonJump = new Actor("res/boton_salto.png", WIDTH * 0.9, HEIGHT * 0.55, 100, 100, game);
-	buttonShoot = new Actor("res/boton_disparo.png", WIDTH * 0.75, HEIGHT * 0.83, 100, 100, game);
-
 	space = new Space(0);
 	scrollX = 0;
 	tiles.clear();
 
-	audioBackground = Audio::createAudio("res/musica_ambiente.mp3", true);
+	audioBackground = Audio::createAudio("res/sounds/crossy_road_music.mp3", true);
 	audioBackground->play();
 
 	coins = 0;
@@ -26,8 +22,8 @@ void GameLayer::init() {
 	textCoins = new Text("hola", WIDTH * 0.92, HEIGHT * 0.045, game);
 	textCoins->content = "OI" + to_string(maxCoins);
 
-	background = new Background("res/fondo_lava.png", WIDTH * 0.5, HEIGHT * 0.5, -1, game);
-	backgroundPoints = new Actor("res/tile_coin.png",
+	background = new Background("res/backgrounds/fondo_lava.png", WIDTH * 0.5, HEIGHT * 0.5, -1, game);
+	backgroundPoints = new Actor("res/tiles/tile_coin.png",
 		WIDTH * 0.82, HEIGHT * 0.05, 40, 40, game);
 
 	enemies.clear(); // Vaciar por si reiniciamos el juego
@@ -38,13 +34,15 @@ void GameLayer::init() {
 	powerUps.clear();
 	obstacles.clear();
 
-	loadMap("res/" + to_string(game->currentLevel) + ".txt");
+	loadMap("res/levels/" + to_string(game->currentLevel) + ".txt");
 	textLifes = new Text("O", WIDTH * 0.12, HEIGHT * 0.05, game);
 	textLifes->content = to_string(player->lifes);
-	backgroundLifes = new Actor("res/corazon.png", WIDTH * 0.06, HEIGHT * 0.06, 44, 36, game);
+	backgroundLifes = new Actor("res/tiles/tile_corazon.png", WIDTH * 0.06, HEIGHT * 0.06, 44, 36, game);
 
 	textShots = new Text("O", WIDTH * 0.28, HEIGHT * 0.045, game);
-	backgroundShots = new Actor("res/pico.png", WIDTH * 0.22, HEIGHT * 0.05, 40, 40, game);
+	backgroundShots = new Actor("res/tiles/tile_pico.png", WIDTH * 0.22, HEIGHT * 0.05, 40, 40, game);
+
+	timeNotMoving = 60;
 }
 void GameLayer::processControls() {
 	// obtener controles
@@ -86,23 +84,33 @@ void GameLayer::processControls() {
 	// Eje X
 	if (controlMoveX > 0) {
 		player->moveX(1);
+		moving = true;
+		timeNotMoving = 60;
 	}
 	else if (controlMoveX < 0) {
 		player->moveX(-1);
+		moving = true;
+		timeNotMoving = 60;
 	}
 	else {
 		player->moveX(0);
+		moving = false;
 	}
 
 	// Eje Y
 	if (controlMoveY > 0) {
 		player->moveY(1);
+		moving = true;
+		timeNotMoving = 60;
 	}
 	else if (controlMoveY < 0) {
 		player->moveY(-1);
+		moving = true;
+		timeNotMoving = 60;
 	}
 	else {
 		player->moveY(0);
+		moving = false;
 	}
 }
 
@@ -128,17 +136,12 @@ void GameLayer::update() {
 	int posY = player->y;
 	space->update();
 
-	list<Tile*> deleteTiles;
-
-	if (posX != player->x || posY != player->y) {
-		for (auto const& tile : tiles) {
-			if (player->isOverlap(tile)) {
-				tile->steppedTimes += 1;
-				if (tile->steppedTimes > 2) {
-					init();
-					return;
-				}
-			}
+	if (!moving) {
+		timeNotMoving--;
+		if (timeNotMoving == 0) {
+			cout << "El jugador no se ha movido en 2 segundos" << endl;
+			init();
+			return;
 		}
 	}
 
@@ -147,9 +150,6 @@ void GameLayer::update() {
 	for (auto const& enemy : enemies) {
 		enemy->update();
 	}
-	//for (auto const& projectile : projectiles) {
-	//	projectile->update();
-	//}
 
 	for (auto const& log : logs) {
 		log->update();
@@ -176,9 +176,6 @@ void GameLayer::update() {
 		}
 	}
 
-	// Colisiones , Enemy - Projectile
-
-	list<Enemy*> deleteEnemies;
 	list<Projectile*> deleteProjectiles;
 	list<PowerUp*> deletePowerUps;
 	list<Obstacle*> deleteObstacles;
@@ -215,33 +212,6 @@ void GameLayer::update() {
 		}
 	}
 
-	//for (auto const& enemy : enemies) {
-	//	for (auto const& projectile : projectiles) {
-	//		if (enemy->isOverlap(projectile)) {
-	//			bool pInList = std::find(deleteProjectiles.begin(),
-	//				deleteProjectiles.end(),
-	//				projectile) != deleteProjectiles.end();
-
-	//			if (!pInList) {
-	//				deleteProjectiles.push_back(projectile);
-	//			}
-	//			enemy->impacted();
-	//		}
-	//	}
-	//}
-
-	for (auto const& enemy : enemies) {
-		if (enemy->state == game->stateDead) {
-			bool eInList = std::find(deleteEnemies.begin(),
-				deleteEnemies.end(),
-				enemy) != deleteEnemies.end();
-
-			if (!eInList) {
-				deleteEnemies.push_back(enemy);
-			}
-		}
-	}
-
 	for (auto const& powerUp : powerUps) {
 		if (powerUp->isOverlap(player)) {
 			powerUp->collision();
@@ -264,12 +234,6 @@ void GameLayer::update() {
 		riverTile->hasLog = false;
 	}
 
-	for (auto const& delEnemy : deleteEnemies) {
-		enemies.remove(delEnemy);
-		space->removeDynamicActor(delEnemy);
-	}
-	deleteEnemies.clear();
-
 	for (auto const& delProjectile : deleteProjectiles) {
 		projectiles.remove(delProjectile);
 		space->removeDynamicActor(delProjectile);
@@ -290,12 +254,6 @@ void GameLayer::update() {
 		delete delObstacle;
 	}
 	deleteObstacles.clear();
-
-	for (auto const& delTile : deleteTiles) {
-		tiles.remove(delTile);
-		delete delTile;
-	}
-	deleteTiles.clear();
 }
 
 void GameLayer::draw() {
@@ -338,11 +296,6 @@ void GameLayer::draw() {
 	textShots->draw();
 
 	// HUD
-	if (game->input == game->inputMouse) {
-		buttonJump->draw(); // NO TIENEN SCROLL, POSICION FIJA
-		buttonShoot->draw(); // NO TIENEN SCROLL, POSICION FIJA
-		pad->draw(); // NO TIENEN SCROLL, POSICION FIJA
-	}
 
 	if (pause)
 		message->draw();
@@ -416,51 +369,6 @@ void GameLayer::mouseToControls(SDL_Event event) {
 	// Cada vez que hacen click
 	if (event.type == SDL_MOUSEBUTTONDOWN) {
 		controlContinue = true;
-		if (pad->containsPoint(motionX, motionY)) {
-			pad->clicked = true;
-			// CLICK TAMBIEN TE MUEVE
-			controlMoveX = pad->getOrientationX(motionX);
-		}
-		if (buttonShoot->containsPoint(motionX, motionY)) {
-			controlShoot = true;
-		}
-		if (buttonJump->containsPoint(motionX, motionY)) {
-			controlMoveY = -1;
-		}
-	}
-	// Cada vez que se mueve
-	if (event.type == SDL_MOUSEMOTION) {
-		if (pad->clicked && pad->containsPoint(motionX, motionY)) {
-			controlMoveX = pad->getOrientationX(motionX);
-			// Rango de -20 a 20 es igual que 0
-			if (controlMoveX > -20 && controlMoveX < 20) {
-				controlMoveX = 0;
-			}
-		}
-		else {
-			pad->clicked = false; // han sacado el ratón del pad
-			controlMoveX = 0;
-		}
-		if (buttonShoot->containsPoint(motionX, motionY) == false) {
-			controlShoot = false;
-		}
-		if (buttonJump->containsPoint(motionX, motionY)) {
-			controlMoveY = 0;
-		}
-	}
-	// Cada vez que levantan el click
-	if (event.type == SDL_MOUSEBUTTONUP) {
-		if (pad->containsPoint(motionX, motionY)) {
-			pad->clicked = false;
-			// LEVANTAR EL CLICK TAMBIEN TE PARA
-			controlMoveX = 0;
-		}
-		if (buttonShoot->containsPoint(motionX, motionY)) {
-			controlShoot = false;
-		}
-		if (buttonJump->containsPoint(motionX, motionY)) {
-			controlMoveY = 0;
-		}
 	}
 }
 
@@ -476,7 +384,7 @@ void GameLayer::loadMap(string name) {
 		// Por línea
 		for (int i = 0; getline(streamFile, line); i++) {
 			istringstream streamLine(line);
-			mapWidth = line.length() * 30; // Ancho del mapa en pixels
+			mapWidth = line.length() * 40; // Ancho del mapa en pixels
 			// Por carácter (en cada línea)
 			for (int j = 0; !streamLine.eof(); j++) {
 				streamLine >> character; // Leer character 
@@ -496,7 +404,7 @@ void GameLayer::loadMapObject(char character, float x, float y) {
 	switch (character) {
 		case 'C': {
 			loadMapObject('X', x, y);
-			PowerUp* coin = new CoinPowerUp("res/tile_coin.png", x, y, game);
+			PowerUp* coin = new CoinPowerUp("res/tiles/tile_coin.png", x, y, game);
 			// modificación para empezar a contar desde el suelo.
 			coin->y = coin->y - coin->height / 2;
 			space->addDynamicActor(coin);
@@ -507,7 +415,7 @@ void GameLayer::loadMapObject(char character, float x, float y) {
 		}
 		case 'H': {
 			loadMapObject('X', x, y);
-			PowerUp* life = new LifePowerUp("res/corazon.png", x, y, game);
+			PowerUp* life = new LifePowerUp("res/tiles/tile_corazon.png", x, y, game);
 			// modificación para empezar a contar desde el suelo.
 			life->y = life->y - life->height / 2;
 			space->addDynamicActor(life);
@@ -516,7 +424,7 @@ void GameLayer::loadMapObject(char character, float x, float y) {
 		}
 		case 'S': {
 			loadMapObject('X', x, y);
-			PowerUp* speed = new SpeedPowerUp("res/speed_powerup.png", x, y, game);
+			PowerUp* speed = new SpeedPowerUp("res/tiles/tile_speed_powerup.png", x, y, game);
 			// modificación para empezar a contar desde el suelo.
 			speed->y = speed->y - speed->height / 2;
 			space->addDynamicActor(speed);
@@ -525,7 +433,7 @@ void GameLayer::loadMapObject(char character, float x, float y) {
 		}
 		case 'P': {
 			loadMapObject('X', x, y);
-			PowerUp* pico = new PicoPowerUp("res/pico.png", x, y, game);
+			PowerUp* pico = new PicoPowerUp("res/tiles/tile_pico.png", x, y, game);
 			// modificación para empezar a contar desde el suelo.
 			pico->y = pico->y - pico->height / 2;
 			space->addDynamicActor(pico);
@@ -550,7 +458,7 @@ void GameLayer::loadMapObject(char character, float x, float y) {
 			break;
 		}
 		case 'X': {
-			Tile* tile = new Tile("res/tile_hierba.png", x, y, game);
+			Tile* tile = new Tile("res/tiles/tile_hierba.png", x, y, game);
 			// modificación para empezar a contar desde el suelo.
 			tile->y = tile->y - tile->height / 2;
 			tiles.push_back(tile);
@@ -559,7 +467,7 @@ void GameLayer::loadMapObject(char character, float x, float y) {
 		case 'O': {
 			loadMapObject('X', x, y);
 			string obst[2] = { "arbol", "piedra" };
-			Obstacle* obstacle = new Obstacle("res/tile_" + obst[rand() % 2] + ".png", x, y, game);
+			Obstacle* obstacle = new Obstacle("res/tiles/tile_" + obst[rand() % 2] + ".png", x, y, game);
 			// modificación para empezar a contar desde el suelo.
 			obstacle->y = obstacle->y - obstacle->height / 2;
 			space->addStaticActor(obstacle);
@@ -567,7 +475,7 @@ void GameLayer::loadMapObject(char character, float x, float y) {
 			break;
 		}
 		case 'R': {
-			River* riverTile = new River("res/tile_rio.png", x, y, game);
+			River* riverTile = new River("res/tiles/tile_rio.png", x, y, game);
 			// modificación para empezar a contar desde el suelo.
 			riverTile->y = riverTile->y - riverTile->height / 2;
 			river.push_back(riverTile);
@@ -575,14 +483,14 @@ void GameLayer::loadMapObject(char character, float x, float y) {
 		}
 		case 'L': {
 			loadMapObject('R', x, y);
-			Log* log = new Log("res/tile_tronco.png", x, y, game);
+			Log* log = new Log("res/tiles/tile_tronco.png", x, y, game);
 			log->y = log->y - log->height / 2;
 			logs.push_back(log);
 			space->addDynamicActor(log);
 			break;
 		}
 		case '.': {
-			Tile* tile = new Tile("res/tile_carretera.png", x, y, game);
+			Tile* tile = new Tile("res/tiles/tile_carretera.png", x, y, game);
 			// modificación para empezar a contar desde el suelo.
 			tile->y = tile->y - tile->height / 2;
 			tiles.push_back(tile);
