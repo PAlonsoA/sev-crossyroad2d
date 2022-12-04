@@ -26,7 +26,7 @@ void GameLayer::init() {
 	textCoins = new Text("hola", WIDTH * 0.92, HEIGHT * 0.045, game);
 	textCoins->content = "OI" + to_string(maxCoins);
 
-	background = new Background("res/fondo_carretera.png", WIDTH * 0.5, HEIGHT * 0.5, -1, game);
+	background = new Background("res/fondo_lava.png", WIDTH * 0.5, HEIGHT * 0.5, -1, game);
 	backgroundPoints = new Actor("res/tile_coin.png",
 		WIDTH * 0.82, HEIGHT * 0.05, 40, 40, game);
 
@@ -124,7 +124,24 @@ void GameLayer::update() {
 	if (player->y >= HEIGHT + 40 || player->y <= -40) {
 		init();
 	}
+	int posX = player->x;
+	int posY = player->y;
 	space->update();
+
+	list<Tile*> deleteTiles;
+
+	if (posX != player->x || posY != player->y) {
+		for (auto const& tile : tiles) {
+			if (player->isOverlap(tile)) {
+				tile->steppedTimes += 1;
+				if (tile->steppedTimes > 2) {
+					init();
+					return;
+				}
+			}
+		}
+	}
+
 	background->update();
 	player->update();
 	for (auto const& enemy : enemies) {
@@ -273,6 +290,12 @@ void GameLayer::update() {
 		delete delObstacle;
 	}
 	deleteObstacles.clear();
+
+	for (auto const& delTile : deleteTiles) {
+		tiles.remove(delTile);
+		delete delTile;
+	}
+	deleteTiles.clear();
 }
 
 void GameLayer::draw() {
@@ -281,6 +304,10 @@ void GameLayer::draw() {
 	
 	for (auto const& tile : tiles) {
 		tile->draw(scrollX);
+	}
+
+	for (auto const& riverTile : river) {
+		riverTile->draw(scrollX);
 	}
 	
 	for (auto const& obstacle : obstacles) {
@@ -506,6 +533,7 @@ void GameLayer::loadMapObject(char character, float x, float y) {
 			break;
 		}
 		case 'E': {
+			loadMapObject('.', x, y);
 			Enemy* enemy = new Enemy(x, y, game);
 			// modificación para empezar a contar desde el suelo.
 			enemy->y = enemy->y - enemy->height / 2;
@@ -542,7 +570,6 @@ void GameLayer::loadMapObject(char character, float x, float y) {
 			River* riverTile = new River("res/tile_rio.png", x, y, game);
 			// modificación para empezar a contar desde el suelo.
 			riverTile->y = riverTile->y - riverTile->height / 2;
-			tiles.push_back(riverTile);
 			river.push_back(riverTile);
 			break;
 		}
@@ -552,6 +579,13 @@ void GameLayer::loadMapObject(char character, float x, float y) {
 			log->y = log->y - log->height / 2;
 			logs.push_back(log);
 			space->addDynamicActor(log);
+			break;
+		}
+		case '.': {
+			Tile* tile = new Tile("res/tile_carretera.png", x, y, game);
+			// modificación para empezar a contar desde el suelo.
+			tile->y = tile->y - tile->height / 2;
+			tiles.push_back(tile);
 			break;
 		}
 

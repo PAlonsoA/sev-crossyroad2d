@@ -8,8 +8,6 @@ Log::Log(string filename, float x, float y, Game* game)
 
 void Log::update()
 {
-	y += vy;
-	
 	if (y < -40 && vy < 0) {
 		y = HEIGHT + 40;
 	}
