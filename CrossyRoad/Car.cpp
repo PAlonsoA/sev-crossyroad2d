@@ -1,6 +1,6 @@
-#include "Enemy.h"
+#include "Car.h"
 
-Enemy::Enemy(float x, float y, Game* game)
+Car::Car(float x, float y, Game* game)
 	: Actor("res/cars/coche_rojo_1.png", x, y, 40, 60, game) {
 
 	vy = speed[rand() % 4];
@@ -23,7 +23,7 @@ Enemy::Enemy(float x, float y, Game* game)
 	animation = aMoving;
 }
 
-void Enemy::update() {
+void Car::update() {
 	// Actualizar la animación
 	bool endAnimation = animation->update();
 
@@ -55,13 +55,13 @@ void Enemy::update() {
 	}
 }
 
-void Enemy::impacted() {
+void Car::impacted() {
 	if (state != game->stateDying) {
 		state = game->stateDying;
 	}
 }
 
-void Enemy::draw(float scrollX) {
+void Car::draw(float scrollX) {
 	animation->draw(x - scrollX, y);
 }
 

@@ -26,7 +26,7 @@ void GameLayer::init() {
 	backgroundPoints = new Actor("res/tiles/tile_coin.png",
 		WIDTH * 0.82, HEIGHT * 0.05, 40, 40, game);
 
-	enemies.clear(); // Vaciar por si reiniciamos el juego
+	cars.clear(); // Vaciar por si reiniciamos el juego
 	projectiles.clear(); // Vaciar por si reiniciamos el juego
 
 	river.clear();
@@ -130,7 +130,7 @@ void GameLayer::update() {
 	}
 	// Jugador se sale del mapa
 	if (player->y >= HEIGHT + 40 || player->y <= -40) {
-		init();
+		restart();
 	}
 	int posX = player->x;
 	int posY = player->y;
@@ -139,15 +139,14 @@ void GameLayer::update() {
 	if (!moving) {
 		timeNotMoving--;
 		if (timeNotMoving == 0) {
-			cout << "El jugador no se ha movido en 2 segundos" << endl;
-			init();
+			restart();
 			return;
 		}
 	}
 
 	background->update();
 	player->update();
-	for (auto const& enemy : enemies) {
+	for (auto const& enemy : cars) {
 		enemy->update();
 	}
 
@@ -165,11 +164,11 @@ void GameLayer::update() {
 	}
 
 	// Colisiones
-	for (auto const& enemy : enemies) {
-		if (player->isOverlap(enemy)) {
+	for (auto const& car : cars) {
+		if (player->isOverlap(car)) {
 			player->loseLife();
 			if (player->lifes <= 0) {
-				init();
+				restart();
 				return;
 			}
 			textLifes->content = to_string(player->lifes);
@@ -228,7 +227,7 @@ void GameLayer::update() {
 	for (auto const& riverTile : river) {
 		if (!riverTile->hasLog && riverTile->isOverlap(player)) {
 			player->loseLife(player->lifes);
-			init();
+			restart();
 			return;
 		}
 		riverTile->hasLog = false;
@@ -284,8 +283,8 @@ void GameLayer::draw() {
 		projectile->draw(scrollX);
 	}
 	player->draw(scrollX);
-	for (auto const& enemy : enemies) {
-		enemy->draw(scrollX);
+	for (auto const& car : cars) {
+		car->draw(scrollX);
 	}
 
 	backgroundPoints->draw();
@@ -442,11 +441,11 @@ void GameLayer::loadMapObject(char character, float x, float y) {
 		}
 		case 'E': {
 			loadMapObject('.', x, y);
-			Enemy* enemy = new Enemy(x, y, game);
+			Car* car = new Car(x, y, game);
 			// modificación para empezar a contar desde el suelo.
-			enemy->y = enemy->y - enemy->height / 2;
-			enemies.push_back(enemy);
-			space->addDynamicActor(enemy);
+			car->y = car->y - car->height / 2;
+			cars.push_back(car);
+			space->addDynamicActor(car);
 			break;
 		}
 		case '1': {
@@ -498,6 +497,14 @@ void GameLayer::loadMapObject(char character, float x, float y) {
 		}
 
 	}
+}
+
+void GameLayer::restart()
+{
+	init();
+	message = new Actor("res/mensaje_perder.png", WIDTH * 0.5, HEIGHT * 0.5,
+			WIDTH, HEIGHT, game);
+	pause = true;
 }
 
 void GameLayer::calculateScroll() {

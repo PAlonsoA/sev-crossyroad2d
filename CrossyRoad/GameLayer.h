@@ -4,7 +4,7 @@
 #include "Player.h"
 #include "Background.h"
 
-#include "Enemy.h"
+#include "Car.h"
 #include "Projectile.h"
 #include "Text.h"
 #include "Tile.h"
@@ -37,6 +37,7 @@ public:
 	void mouseToControls(SDL_Event event); // USO DE MOUSE
 	void loadMap(string name);
 	void loadMapObject(char character, float x, float y);
+	void restart();
 	int mapWidth;
 	void calculateScroll();
 	Actor* message;
@@ -49,11 +50,10 @@ public:
 	Text* textCoins;
 	int coins;
 	int maxCoins = 0;
-	int newEnemyTime = 0;
 	Player* player;
 	Background* background;
 	Actor* backgroundPoints;
-	list<Enemy*> enemies;
+	list<Car*> cars;
 	list<Projectile*> projectiles;
 
 	bool controlContinue = false;

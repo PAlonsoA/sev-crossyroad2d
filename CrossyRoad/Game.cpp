@@ -56,8 +56,8 @@ void Game::scale() {
 	if (scaledToMax) {
 		SDL_DisplayMode PCdisplay;
 		SDL_GetCurrentDisplayMode(0, &PCdisplay);
-		float scaleX = (float)PCdisplay.w / (float)WIDTH;
-		float scaleY = (float)PCdisplay.h / (float)HEIGHT;
+		float scaleX = ((float)PCdisplay.w / (float)WIDTH)/1.2;
+		float scaleY = ((float)PCdisplay.h / (float)HEIGHT)/1.2;
 		// Necesitamos la menor de las 2 escalas para no deformar el juego
 		scaleLower = scaleX;
 		if (scaleY < scaleX) {
